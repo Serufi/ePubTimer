@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+
+   <!-- Latest compiled and minified CSS -->
+ <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  
+  <!-- Include JSZip before epub.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  
+  <!-- Include epub.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.3.88/epub.min.js"></script>
+  
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+  <!-- Additional libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+  
+  <!-- Custom styles -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <script>
+      function myFunction() {
+        initialize();
+
+        initializeEPUB();
+
+        console.log("type of ePub: " + typeof ePub);
+
+        recalculate(); 
+
+        listfunctioning();
+      }
+      
+      function listfunctioning(){
+          // Select all list items
+          const listItems = document.querySelectorAll('li');
+
+          // Iterate over each list item
+          listItems.forEach(function(item) {
+            // Add event listener for mouse entering the element
+            item.addEventListener('mouseenter', function() {
+              item.classList.add('active');
+            });
+
+            // Add event listener for mouse leaving the element
+            item.addEventListener('mouseleave', function() {
+              item.classList.remove('active');
+            });
+
+            item.addEventListener('click', function() {
+              const checkboxes = item.querySelectorAll('input[type="checkbox"]');
+              const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+
+              checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+              });              
+            });
+
+            item.addEventListener('wheel', function(e){
+                e.preventDefault(); // Prevent page scroll
+
+                const inputs = item.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => {
+                  const currentValue = parseFloat(input.value) || 0;
+                  if (e.deltaY < 0) { input.value = currentValue + 1; } else
+                                      input.value = currentValue - 1; // scroll up = increase
+                  input.dispatchEvent(new Event('input')); // if needed to trigger listeners
+                });
+            });
+          });
+
+          
+          // const timeInputs = document.querySelectorAll('input[type="time"]');
+
+          // timeInputs.forEach(input => {
+          //   if (!input.value) return; // skip if empty
+
+          //   // Parse current time "HH:MM"
+          //   let [hours, minutes] = input.value.split(':').map(Number);
+
+          //   // Add 1 hour, wrap around 24
+          //   hours = (hours + 1) % 24;
+
+          //   // Format back to "HH:MM"
+          //   const newTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+          //   input.value = newTime;
+          // });
+      }
+
+      function initialize(){
+        $('#myBar').css('width', '1%');
+        $('#myBar').text('1%');
+
+        var dateinfo1 = new Date();
+
+        var hours = String(dateinfo1.getHours()).padStart(2, '0');
+        var minutes = String(dateinfo1.getMinutes()).padStart(2, '0');
+        //var timeString = `${hours}:${minutes}`;
+
+        var timeString = "08:00";
+        $('#input1').val("08:00");
+        $('#input2').val("16:00");
+      }
+
+      function  recalculate(){
+        var hour1 = $("#input1").val();       console.log("hora1: " + hour1);
+        var hour2 = $("#input2").val();       console.log("hora2: " + hour2);
+
+        var now = new Date();
+        var hours = now.getHours();
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
+
+        var currenttime = (hours * 60) + (minutes);
+
+        var initialtime = hour1.split(":")[0] * 60;
+        var finaltime = hour2.split(":")[0] * 60; 
+
+        console.log("hour1             : " + hour1);
+        //var initialhour = 8;
+        //var finalhour = 4;
+        //var initialtime = initialhour * 60;
+        //var finaltime = (finalhour + 12) * 60; 
+
+        finaltime = finaltime - initialtime;
+        currenttime = currenttime - initialtime;
+        initialtime -= initialtime;
+        //console.log("current time: " + hours + ':' + minutes + ':' + seconds);
+
+        console.log("current mins: " + currenttime);
+        console.log("initial: " + initialtime);
+        console.log("final: " + finaltime);
+        var percentage = currenttime/(finaltime/100);
+        percentage = parseFloat(percentage.toFixed(1));
+        console.log(percentage + "%");
+
+        $('#myBar').css('width', percentage+'%');
+        $('#myBar').text(percentage+'%'); 
+
+        $('.currentDate1').text(now.toLocaleDateString('es-ES', {  day: 'numeric',   month: 'long',   year: 'numeric', }));
+        $('.currentDate2').text(now.toString().replace(/\sGMT.*/, ''));
+      }
+
+
+      const CHUNK_SIZE = 100 * 1024; // 100 KB per chapter
+      let file = null;
+
+
+      function initializeEPUB(){
+        document.getElementById('fileInput').addEventListener('change', e => {
+          file = e.target.files[0];
+          document.getElementById('output').textContent = '';
+        });
+
+        document.getElementById('loadBtn').addEventListener('click', () => {
+          const chap = Math.max(1, parseInt(document.getElementById('chapter').value, 10));
+          if (!file) return alert('Please select a file first.');
+          loadChapter(chap);
+        });
+      }
+
+      function loadChapter(chap) {
+        const offset = (chap - 1) * CHUNK_SIZE;
+        const end = Math.min(offset + CHUNK_SIZE, file.size);
+        if (offset >= file.size) {
+          document.getElementById('output').textContent = '⚠️ Chapter out of range.';
+          return;
+        }
+
+        const chunk = file.slice(offset, end);
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          const arrayBuffer = reader.result;
+          const book = ePub(arrayBuffer);
+          const rendition = book.renderTo("viewer", {
+            width: "100%",
+            height: "600px",
+            spread: "always"
+          });
+          rendition.display();
+        };
+
+        reader.onerror = () => {
+          console.error('Error reading file:', reader.error);
+          document.getElementById('output').textContent = 'Error reading the chapter.';
+        };
+
+        reader.readAsArrayBuffer(chunk);
+      }
+
+    </script>
+    <style>
+      .padeing
+      {
+        padding: 10px;
+      }
+
+      .container {
+        overflow: visible;
+      }
+
+      .list-group-item.active input {
+        color: inherit;
+        background-color: inherit;
+        border-color: inherit; /* optional for visual consistency */
+      }
+    </style>
+  </head>
+
+  <body onload="myFunction()">
+
+    <div style="padding:10px"></div>
+
+    <div class="row" style="padding:10px">
+      <div class="col col-xs-6 col-sm-3 padeing">
+        <input type="time" class="form-control" name="Hora Inicio" id="input1">
+      </div>
+
+      <div class="col col-xs-6 col-sm-3 padeing">
+        <input type="time" class="form-control" name="Hora Final" id="input2">
+      </div>
+
+      <div class="col col-xs-6 col-sm-3 padeing">
+        <button id="btn1" class="btn btn-primary" onclick="recalculate()" style="width: 100%;"> Decromfambulate </button>
+      </div>
+
+      <div class="col col-xs-6 col-sm-3" style="height: 53.6px; margin-top: -12px; overflow: visible;">
+        <h2 style="overflow: visible;" class="currentDate1">        </h2>
+      </div>
+    </div>
+
+   <div style="padding:10px;">
+      <div class="progress">
+
+        <div id="myBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 5%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">5%</div>
+
+      </div>
+    </div>  
+
+
+    <div style="padding:10px" class="row">
+      <div class="col-xs-6">
+
+          <ul class="list-group">
+
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <input type="checkbox" name="text">  Check Univerisities' posts for worthy students    
+              <span class="badge badge-primary badge-pill">7</span>
+            </li>
+
+            <li class="list-group-item">
+              <input type="checkbox" name="text2"> Check Drafts to caducate
+            </li>
+
+            <li class="list-group-item">
+              <input type="checkbox" name="text3"> Check next month of dates
+            </li>
+
+            <li class="list-group-item">
+              <input type="checkbox" name="text4"> Check email
+            </li>
+
+            <li class="list-group-item">
+              <input type="number" name="text5" class="" style="width: 15%" id="n1"> Pictures produced today
+            </li>
+          </ul>
+
+      </div>
+      <div class="col-xs-6">
+        <h2 style="font-size: 5em;" class="currentDate2">  </h2>
+      </div>
+    </div>
+
+
+<!--     <h1>
+      TEXTO TEXTO
+      <input type="file" id="fileInput" accept=".txt,.pdf,.epub" />
+      <pre id="fileContents"></pre>
+
+      <script>
+        const input = document.getElementById('fileInput');
+        const output = document.getElementById('fileContents');
+
+        input.addEventListener('change', () => {
+          const file = input.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            output.textContent = reader.result; // Display file text
+          };
+          reader.readAsText(file); // For text files. Use readAsDataURL for images, etc.
+        });
+      </script>
+    </h1> -->
+
+    <input type="file" id="fileInput" accept=".txt,.epub" /><br>
+    <label for="chapter">Capítulo:</label>
+    <input type="number" id="chapter" min="1" value="1" />
+    <button id="loadBtn">Cargar capítulo</button>
+
+    <pre id="output" style="white-space: pre-wrap;"></pre>
+    <div id="viewer"></div>
+  </body>
+</html>
