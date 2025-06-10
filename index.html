@@ -158,6 +158,28 @@
         //   }
         // });
 
+          document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                const book = ePub(e.target.result);
+                const rendition = book.renderTo("output", {
+                  width: "100%",
+                  height: "600px"
+                });
+        
+                // Wait for the spine to be loaded before displaying
+                book.loaded.spine.then(function() {
+                  rendition.display();
+                }).catch(function(error) {
+                  console.error("Error loading spine:", error);
+                });
+              };
+              reader.readAsArrayBuffer(file);
+            }
+          });
+      // semi working attempt 1---------------------------------------------------------------
         document.getElementById('fileInput').addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
@@ -175,6 +197,9 @@
           reader.readAsArrayBuffer(file);
         }
       });
+        //------------------------------------------------------------------------------------
+
+        
         // document.getElementById('fileInput').addEventListener('change', e => {
         //   file = e.target.files[0];
         //   document.getElementById('output').textContent = '';
