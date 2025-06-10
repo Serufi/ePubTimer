@@ -168,7 +168,9 @@
               width: "100%",
               height: "600px"
             });
-            rendition.display();
+            book.loaded.spine.then(function() {
+              rendition.display();
+            });
           };
           reader.readAsArrayBuffer(file);
         }
