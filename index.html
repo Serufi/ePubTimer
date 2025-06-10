@@ -170,11 +170,15 @@
                 });
         
                 // Wait for the spine to be loaded before displaying
-                book.loaded.spine.then(function() {
+                
                   rendition.display();
-                }).catch(function(error) {
-                  console.error("Error loading spine:", error);
-                });
+                
+                // book.loaded.spine.then(function() {
+                //   rendition.display();
+                // }).catch(function(error) {
+                //   console.error("Error loading spine:", error);
+                // });
+                
               };
               reader.readAsArrayBuffer(file);
             }
