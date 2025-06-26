@@ -1,356 +1,427 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
-  <head>
- <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">  
-  <!-- Include JSZip before epub.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>  
-  <!-- Include epub.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.2.15/epub.min.js"></script>  
-  <!-- jQuery library -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>  
-  <!-- Latest compiled JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
-  <!-- Additional libraries -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>  
-  <!-- Custom styles -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<head>
+
+    <!-- Latest compiled and minified CSS -->
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- Include JSZip before epub.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.6.1/jszip.min.js"></script>
+
+    <!-- Include epub.js -->
+    <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/epub.js/0.2.15/epub.min.js"></script> -->
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <!-- Additional libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+
+    <!-- Custom styles -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
     <script>
-      function myFunction() {
-        console.log("version: 2025:06:10:08:52");
-        initialize();
-        initializeEPUB();
-        console.log("type of ePub: " + typeof ePub);
-        recalculate(); 
-        listfunctioning();
-      }
-      
-      function listfunctioning(){
-          // Select all list items
-          const listItems = document.querySelectorAll('li');
+        var counter1 = 0;
+        var counter2 = 0;
+        var counter3 = 0;
 
-          // Iterate over each list item
-          listItems.forEach(function(item) {
-            // Add event listener for mouse entering the element
-            item.addEventListener('mouseenter', function() {
-              item.classList.add('active');
-            });
+        function myFunction() {
+            initialize();
+            initializeEPUB();
+            listeningKeys();
+            //console.log("type of ePub: " + typeof ePub);
+            recalculate();
+            listfunctioning();
+        }
 
-            // Add event listener for mouse leaving the element
-            item.addEventListener('mouseleave', function() {
-              item.classList.remove('active');
-            });
+        function listfunctioning() {
+            // Select all list items
+            const listItems = document.querySelectorAll('li');
 
-            item.addEventListener('click', function() {
-              const checkboxes = item.querySelectorAll('input[type="checkbox"]');
-              const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            // Iterate over each list item
+            listItems.forEach(function (item) {
+                // Add event listener for mouse's actions triggered css changes
+                item.addEventListener('mouseenter', function () { item.classList.add('active'); });
+                item.addEventListener('mouseleave', function () { item.classList.remove('active'); });
 
-              checkboxes.forEach(checkbox => {
-                checkbox.checked = !allChecked;
-              });              
-            });
+                item.addEventListener('click', function () {
+                    const checkboxes = item.querySelectorAll('input[type="checkbox"]');
+                    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
 
-            item.addEventListener('wheel', function(e){
-                e.preventDefault(); // Prevent page scroll
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = !allChecked;
+                    });
+                });
 
-                const inputs = item.querySelectorAll('input[type="number"]');
-                inputs.forEach(input => {
-                  const currentValue = parseFloat(input.value) || 0;
-                  if (e.deltaY < 0) { input.value = currentValue + 1; } else
-                                      input.value = currentValue - 1; // scroll up = increase
-                  input.dispatchEvent(new Event('input')); // if needed to trigger listeners
+                item.addEventListener('wheel', function (e) {
+                    e.preventDefault(); // Prevent page scroll
+
+                    const inputs = item.querySelectorAll('input[type="number"]');
+                    inputs.forEach(input => {
+                        const currentValue = parseFloat(input.value) || 0;
+                        if (e.deltaY < 0) { input.value = currentValue + 1; } else
+                            input.value = currentValue - 1; // scroll up = increase
+                        input.dispatchEvent(new Event('input')); // if needed to trigger listeners
+                    });
                 });
             });
-          });
-
-          
-          // const timeInputs = document.querySelectorAll('input[type="time"]');
-
-          // timeInputs.forEach(input => {
-          //   if (!input.value) return; // skip if empty
-
-          //   // Parse current time "HH:MM"
-          //   let [hours, minutes] = input.value.split(':').map(Number);
-
-          //   // Add 1 hour, wrap around 24
-          //   hours = (hours + 1) % 24;
-
-          //   // Format back to "HH:MM"
-          //   const newTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-
-          //   input.value = newTime;
-          // });
-      }
-
-      function initialize(){
-        $('#myBar').css('width', '1%');
-        $('#myBar').text('1%');
-
-        var dateinfo1 = new Date();
-
-        var hours = String(dateinfo1.getHours()).padStart(2, '0');
-        var minutes = String(dateinfo1.getMinutes()).padStart(2, '0');
-        //var timeString = `${hours}:${minutes}`;
-
-        var timeString = "08:00";
-        $('#input1').val("08:00");
-        $('#input2').val("16:00");
-      }
-
-      function  recalculate(){
-        var hour1 = $("#input1").val();       console.log("hora1: " + hour1);
-        var hour2 = $("#input2").val();       console.log("hora2: " + hour2);
-
-        var now = new Date();
-        var hours = now.getHours();
-        var minutes = now.getMinutes();
-        var seconds = now.getSeconds();
-
-        var currenttime = (hours * 60) + (minutes);
-
-        var initialtime = hour1.split(":")[0] * 60;
-        var finaltime = hour2.split(":")[0] * 60; 
-
-        console.log("hour1             : " + hour1);
-        //var initialhour = 8;
-        //var finalhour = 4;
-        //var initialtime = initialhour * 60;
-        //var finaltime = (finalhour + 12) * 60; 
-
-        finaltime = finaltime - initialtime;
-        currenttime = currenttime - initialtime;
-        initialtime -= initialtime;
-        //console.log("current time: " + hours + ':' + minutes + ':' + seconds);
-
-        console.log("current mins: " + currenttime);
-        console.log("initial: " + initialtime);
-        console.log("final: " + finaltime);
-        var percentage = currenttime/(finaltime/100);
-        percentage = parseFloat(percentage.toFixed(1));
-        console.log(percentage + "%");
-
-        $('#myBar').css('width', percentage+'%');
-        $('#myBar').text(percentage+'%'); 
-
-        $('.currentDate1').text(now.toLocaleDateString('es-ES', {  day: 'numeric',   month: 'long',   year: 'numeric', }));
-        $('.currentDate2').text(now.toString().replace(/\sGMT.*/, ''));
-      }
 
 
-      const CHUNK_SIZE = 100 * 1024; // 100 KB per chapter
-      let file = null;
+            // const timeInputs = document.querySelectorAll('input[type="time"]');
 
+            // timeInputs.forEach(input => {
+            //   if (!input.value) return; // skip if empty
 
-      function initializeEPUB(){
-        // document.getElementById('fileInput').addEventListener('change', function(event) {
-        //   const file = event.target.files[0];
-        //   if (file) {
-        //     const reader = new FileReader();
-        //     reader.onload = function(e) {
-        //       document.getElementById('output').textContent = e.target.result;
-        //     };
-        //     reader.onerror = function() {
-        //       alert('Error reading file');
-        //     };
-        //     reader.readAsText(file);
-        //   }
-        // });
+            //   // Parse current time "HH:MM"
+            //   let [hours, minutes] = input.value.split(':').map(Number);
 
-          document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = function(e) {
-                const book = ePub(e.target.result);
-                const rendition = book.renderTo("output", {
-                  width: "100%",
-                  height: "6000px"
+            //   // Add 1 hour, wrap around 24
+            //   hours = (hours + 1) % 24;
+
+            //   // Format back to "HH:MM"
+            //   const newTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+            //   input.value = newTime;
+            // });
+        }
+
+        function listeningKeys() {
+            document.body.addEventListener('keydown', function (e) {
+                switch (e.key) {
+                    case '1': counter1++; break;
+                    case '2': counter2++; break;
+                    case '3': counter3++; break;
+
+                    case '4': counter1--; break;
+                    case '5': counter2--; break;
+                    case '6': counter3--; break;
+
+                    case '7': counter1 = 0; break;
+                    case '8': counter2 = 0; break;
+                    case '9': counter3 = 0; break;
+                }
+
+                $("#counter1").html("Counter 1: " + counter1);
+                $("#counter2").html("Counter 2: " + counter2);
+                $("#counter3").html("Counter 3: " + counter3);
+
+                $("#aside11").html(counter1 + ", " + counter2 + ", " + counter3);
+            });
+        }
+
+        function initialize() {
+            console.log("version 2025.06.09.14.22");
+            $('#myBar').css('width', '1%');
+            $('#myBar').text('1%');
+
+            var dateinfo1 = new Date();
+
+            var hours = String(dateinfo1.getHours()).padStart(2, '0');
+            var minutes = String(dateinfo1.getMinutes()).padStart(2, '0');
+            //var timeString = `${hours}:${minutes}`;
+
+            var timeString = "08:00";
+            $('#input1').val("08:00");
+            $('#input2').val("16:00");
+        }
+
+        function recalculate() {
+            var hour1 = $("#input1").val(); console.log("hora1: " + hour1);
+            var hour2 = $("#input2").val(); console.log("hora2: " + hour2);
+
+            var now = new Date();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+
+            var currenttime = (hours * 60) + (minutes);
+
+            var initialtime = hour1.split(":")[0] * 60;
+            var finaltime = hour2.split(":")[0] * 60;
+
+            console.log("hour1             : " + hour1);
+            //var initialhour = 8;
+            //var finalhour = 4;
+            //var initialtime = initialhour * 60;
+            //var finaltime = (finalhour + 12) * 60;
+
+            finaltime = finaltime - initialtime;
+            currenttime = currenttime - initialtime;
+            initialtime -= initialtime;
+            //console.log("current time: " + hours + ':' + minutes + ':' + seconds);
+
+            console.log("current mins: " + currenttime);
+            console.log("initial: " + initialtime);
+            console.log("final: " + finaltime);
+            var percentage = currenttime / (finaltime / 100);
+            percentage = parseFloat(percentage.toFixed(1));
+            console.log(percentage + "%");
+
+            $('#myBar').css('width', percentage + '%');
+            $('#myBar').text(percentage + '%');
+
+            $('.currentDate1').text("  " + now.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric', }));
+            //$('.currentDate2').text(now.toString().replace(/\sGMT.*/, ''));
+            $('.currentDate2').text(now.toLocaleDateString('es-MX', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }));
+        }
+
+        function initializeEPUB() {
+            document.getElementById('fileInput').addEventListener('change', e => {
+                file = e.target.files[0];
+                document.getElementById('output').textContent = '';
+            });
+
+            document.getElementById('loadBtn').addEventListener('click', () => {
+                const chap = Math.max(1, parseInt(document.getElementById('chapter').value, 10));
+                if (!file) return alert('Please select a file first.');
+                loadChapter(chap);
+            });
+        }
+
+        function loadChapter(chap) {
+            reader.onload = () => {
+                const arrayBuffer = reader.result;
+                const book = ePub(arrayBuffer);
+                const rendition = book.renderTo("viewer", {
+                    width: "100%",
+                    height: "600px",
+                    spread: "always"
                 });
-        
-                // Wait for the spine to be loaded before displaying
-                
-                  //rendition.display();
-                
-                // book.loaded.spine.then(function() {
-                //   rendition.display();
-                // }).catch(function(error) {
-                //   console.error("Error loading spine:", error);
-                // });
-                
-              };
-              reader.readAsArrayBuffer(file);
-            }
-          });
-      // semi working attempt 1---------------------------------------------------------------
-      //   document.getElementById('fileInput').addEventListener('change', function(event) {
-      //   const file = event.target.files[0];
-      //   if (file) {
-      //     const reader = new FileReader();
-      //     reader.onload = function(e) {
-      //       const book = ePub(e.target.result);
-      //       const rendition = book.renderTo("output", {
-      //         width: "100%",
-      //         height: "600px"
-      //       });
-      //       book.loaded.spine.then(function() {
-      //         rendition.display();
-      //       });
-      //     };
-      //     reader.readAsArrayBuffer(file);
-      //   }
-      // });
-        //------------------------------------------------------------------------------------
+                rendition.display();
+            };
 
-        
-        // document.getElementById('fileInput').addEventListener('change', e => {
-        //   file = e.target.files[0];
-        //   document.getElementById('output').textContent = '';
-        // });
+            reader.onerror = () => {
+                console.error('Error reading file:', reader.error);
+                document.getElementById('output').textContent = 'Error reading the chapter.';
+            };
 
-        // document.getElementById('loadBtn').addEventListener('click', () => {
-        //   const chap = Math.max(1, parseInt(document.getElementById('chapter').value, 10));
-        //   if (!file) return alert('Please select a file first.');
-        //   loadChapter(chap);
-        // });
-      }
-
-      // function loadChapter(chap) {
-      //   const offset = (chap - 1) * CHUNK_SIZE;
-      //   const end = Math.min(offset + CHUNK_SIZE, file.size);
-      //   if (offset >= file.size) {
-      //     document.getElementById('output').textContent = '⚠️ Chapter out of range.';
-      //     return;
-      //   }
-
-      //   const chunk = file.slice(offset, end);
-      //   const reader = new FileReader();
-
-      //   reader.onload = () => {
-      //     const arrayBuffer = reader.result;
-      //     const book = ePub(arrayBuffer);
-      //     const rendition = book.renderTo("viewer", {
-      //       width: "100%",
-      //       height: "600px",
-      //       spread: "always"
-      //     });
-      //     rendition.display();
-      //   };
-
-      //   reader.onerror = () => {
-      //     console.error('Error reading file:', reader.error);
-      //     document.getElementById('output').textContent = 'Error reading the chapter.';
-      //   };
-
-      //   reader.readAsArrayBuffer(chunk);
-      // }
+            reader.readAsArrayBuffer(book);
+        }
 
     </script>
     <style>
-      .padeing
-      {
-        padding: 10px;
-      }
+        .padeing {
+            padding: 10px;
+        }
 
-      .container {
-        overflow: visible;
-      }
+        .container {
+            overflow: visible;
+        }
 
-      .list-group-item.active input {
-        color: inherit;
-        background-color: inherit;
-        border-color: inherit; /* optional for visual consistency */
-      }
+        .list-group-item.active input {
+            color: inherit;
+            background-color: inherit;
+            border-color: inherit; /* optional for visual consistency */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: sans-serif;
+            margin: 0;
+        }
+
+        .header {
+            background: #2e6da4;
+            border-color: #2e6da4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+        }
+
+        .article {
+            flex: 3;
+            background: #ecf0f1;
+            padding: 20px;
+        }
+
+        .aside {
+            flex: 1;
+            background: #337ab7;
+            border-color: #2e6da4;
+            color: white;
+            padding: 20px;
+        }
+
+        .footer {
+            background: #2e6da4;
+            border-color: #2e6da4;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .section {
+            background: #337ab7;
+            border-color: #2e6da4;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            color: white;
+        }
     </style>
-  </head>
+</head>
 
-  <body onload="myFunction()">
+<body onload="myFunction()">
 
     <div style="padding:10px"></div>
 
     <div class="row" style="padding:10px">
-      <div class="col col-xs-6 col-sm-3 padeing">
-        <input type="time" class="form-control" name="Hora Inicio" id="input1">
-      </div>
+        <div class="col col-xs-6 col-sm-3 padeing">
+            <input type="time" class="form-control" name="Hora Inicio" id="input1">
+        </div>
 
-      <div class="col col-xs-6 col-sm-3 padeing">
-        <input type="time" class="form-control" name="Hora Final" id="input2">
-      </div>
+        <div class="col col-xs-6 col-sm-3 padeing">
+            <input type="time" class="form-control" name="Hora Final" id="input2">
+        </div>
 
-      <div class="col col-xs-6 col-sm-3 padeing">
-        <button id="btn1" class="btn btn-primary" onclick="recalculate()" style="width: 100%;"> Decromfambulate </button>
-      </div>
+        <div class="col col-xs-6 col-sm-3 padeing">
+            <button id="btn1" class="btn btn-primary" onclick="recalculate()" style="width: 100%;"> Decromfambulate </button>
+        </div>
 
-      <div class="col col-xs-6 col-sm-3" style="height: 53.6px; margin-top: -12px; overflow: visible;">
-        <h2 style="overflow: visible;" class="currentDate1">        </h2>
-      </div>
+        <div class="col col-xs-6 col-sm-3 padeing" style="height: 40px;  overflow: visible;">
+            <h2 style="
+          overflow: visible;
+          margin-bottom: 0px;
+          margin-top: 0px;
+          " class="currentDate1">
+            </h2>
+        </div>
     </div>
 
-   <div style="padding:10px;">
-      <div class="progress">
+    <div style="padding:10px;">
+        <div class="progress" style="margin-bottom: 0px;">
 
-        <div id="myBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 5%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">5%</div>
+            <div id="myBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 5%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">5%</div>
 
-      </div>
-    </div>  
+        </div>
+
+        <div id="post_bar" class="" style="display: flex; justify-content: space-between; padding-top: -100px;">
+            <div style="margin: 0px; padding: 0px">8 am</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">9 am</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">10 am</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">11 am</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">12 am</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">1 pm</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">2 pm</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">3 pm</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">|</div>
+            <div style="margin: 0px; padding: 0px">.</div>
+            <div style="margin: 0px; padding: 0px">4 pm</div>
+        </div>
+    </div>
 
 
     <div style="padding:10px" class="row">
-      <div class="col-xs-6">
+        <div class="col-xs-6">
 
-          <ul class="list-group">
+            <ul class="list-group">
 
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              <input type="checkbox" name="text">  Check Univerisities' posts for worthy students    
-              <span class="badge badge-primary badge-pill">7</span>
-            </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <input type="checkbox" name="text">  Check Univerisities' posts for worthy students
+                    <span class="badge badge-primary badge-pill">7</span>
+                </li>
 
-            <li class="list-group-item">
-              <input type="checkbox" name="text2"> Check Drafts to caducate
-            </li>
+                <li class="list-group-item">
+                    <input type="checkbox" name="text2"> Check Drafts to caducate
+                </li>
 
-            <li class="list-group-item">
-              <input type="checkbox" name="text3"> Check next month of dates
-            </li>
+                <li class="list-group-item">
+                    <input type="checkbox" name="text3"> Check next month of dates
+                </li>
 
-            <li class="list-group-item">
-              <input type="checkbox" name="text4"> Check email
-            </li>
+                <li class="list-group-item">
+                    <input type="checkbox" name="text4"> Check email
+                </li>
 
-            <li class="list-group-item">
-              <input type="number" name="text5" class="" style="width: 15%" id="n1"> Pictures produced today
-            </li>
-          </ul>
+                <li class="list-group-item">
+                    <input type="number" name="text5" class="" style="width: 15%" id="n1"> Pictures produced today
+                </li>
+            </ul>
 
-      </div>
-      <div class="col-xs-6">
-        <h2 style="font-size: 5em;" class="currentDate2">  </h2>
-      </div>
+        </div>
+        <div class="col-xs-6">
+            <h2 style="font-size: 5em;" class="currentDate2">  </h2>
+        </div>
     </div>
 
 
-<!--     <h1>
-      TEXTO TEXTO
-      <input type="file" id="fileInput" accept=".txt,.pdf,.epub" />
-      <pre id="fileContents"></pre>
+    <!--     <h1>
+          TEXTO TEXTO
+          <input type="file" id="fileInput" accept=".txt,.pdf,.epub" />
+          <pre id="fileContents"></pre>
 
-      <script>
-        const input = document.getElementById('fileInput');
-        const output = document.getElementById('fileContents');
+          <script>
+            const input = document.getElementById('fileInput');
+            const output = document.getElementById('fileContents');
 
-        input.addEventListener('change', () => {
-          const file = input.files[0];
-          if (!file) return;
+            input.addEventListener('change', () => {
+              const file = input.files[0];
+              if (!file) return;
 
-          const reader = new FileReader();
-          reader.onload = () => {
-            output.textContent = reader.result; // Display file text
-          };
-          reader.readAsText(file); // For text files. Use readAsDataURL for images, etc.
-        });
-      </script>
-    </h1> -->
+              const reader = new FileReader();
+              reader.onload = () => {
+                output.textContent = reader.result; // Display file text
+              };
+              reader.readAsText(file); // For text files. Use readAsDataURL for images, etc.
+            });
+          </script>
+        </h1> -->
+
+
+    <header class="header"> Counters </header>
+
+    <div class="main">
+        <article class="article">
+            <section class="section" id="counter1">Section 1</section>
+            <section class="section" id="counter2">Section 2</section>
+            <section class="section" id="counter3">Section 3</section>
+        </article>
+
+        <aside class="aside" id="aside1"><h1 id="aside11" style="font-size: 4em;">  </h1></aside>
+    </div>
+
+    <footer class="footer"> Counters </footer>
+
+    <br><br><br>
 
     <input type="file" id="fileInput" accept=".txt,.epub" /><br>
     <label for="chapter">Capítulo:</label>
@@ -359,5 +430,5 @@
 
     <pre id="output" style="white-space: pre-wrap;"></pre>
     <div id="viewer"></div>
-  </body>
+</body>
 </html>
